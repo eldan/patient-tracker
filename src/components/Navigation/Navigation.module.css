@@ -1,0 +1,25 @@
+.selectOrgs {
+    padding-top: 2px;
+    font-size: .5em;
+    float: right;
+}
+
+.selectOrgs button {
+    background-color: #343a40 !important;
+    border: none;
+}
+
+
+.Dropdown {
+    background-color: #343a40 !important;
+    color: white
+}
+
+.DropdownItem {
+    color: white  !important;
+    z-index: 99;
+}
+
+.Dropdown :hover {
+     background-color: #51a2f9 !important;
+}

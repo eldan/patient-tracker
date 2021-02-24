@@ -1,0 +1,15 @@
+
+.cardheader {
+     padding: 5px !important;
+     width: -webkit-fill-available;
+     margin: 0px !important;
+     background-color: #666 !important;
+}
+
+.summary_line {
+    color:white;
+}
+
+.boxEvent {
+      color: #666 !important;
+}

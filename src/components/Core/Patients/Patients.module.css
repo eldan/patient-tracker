@@ -1,0 +1,147 @@
+.container {
+    padding: 2px !important;
+}
+
+
+
+.cardAge {
+     text-align: left;
+}
+
+.cardTop {
+    font-size: 1.6em;
+}
+
+
+.flex {
+    display: flex;
+    flex-direction: row-reverse;
+    color: white
+}
+
+.flex span::before {
+    content: "\00a0";
+}
+.flex span:nth-child(1){
+    min-width:40px;
+    text-align: center;
+    font-weight: 200;
+    font-size:1em !important;
+    /* padding-top: .5em; */
+}
+.flex span:nth-child(2){
+    text-align: right;
+  
+}
+
+.last_event_memo {
+    color: white;
+    text-align: right;
+    direction: rtl;
+    font-size: .8em;
+    background-color: rgb(125, 166, 255);
+    
+}
+
+
+.box {
+    padding-bottom: 0px;
+    padding-top: 10px;
+    border-bottom: 1px solid rgb(218, 229, 255)
+}
+
+.boxEvent {
+      color: #007bff !important;
+      padding-bottom: 3px;
+}
+
+
+
+.cardBox {
+padding-top: 2px;   
+  
+
+}
+
+.card { 
+    padding: 10px !important;
+    border: 1px solid #007bff;    
+}
+
+
+.cardheader {
+     padding: 5px !important;
+     width: -webkit-fill-available;
+     margin: 0px !important;
+     background-color: #007bff !important;
+}
+
+
+.cardheaderbutton {
+    color: white;
+    padding: 0px;
+    width: -webkit-fill-available;
+}
+.cardheaderbutton:link {
+    text-decoration: none;
+}
+
+.cardheaderbutton:visited {
+    text-decoration: none;
+}
+
+.cardheaderbutton:focus {
+    text-decoration: none;
+}
+
+.buttonAddEvent {
+    width: 100%;
+    font-weight: 500 !important;
+    background-color: #007bff;
+}
+
+.buttonAddEventArchive {
+    width: 100%;
+    font-weight: 500 !important;
+    background-color: grey !important;
+    color: white  !important;
+}
+
+.icon_light {
+    fill: white !important;
+}
+
+.hr_white {
+    border:none;
+    background-color:rgba(255, 255, 255, 0.3);
+    color: inherit;
+    height:1px;
+    width:100%;
+    margin-top:5px;
+    margin-bottom:10px;
+}
+
+.location {
+    font-weight: 900;
+    border-radius: 5px;
+    background-color: #51a2f9;
+    padding-right: 8px;
+    padding-left: 3px;
+    color: white;
+}
+
+.event {  
+    direction: rtl; 
+}
+
+.patient_name {
+    font-weight: 800;
+}
+.medical_cause {
+    height: 0px;
+    font-style: italic;
+}
+
+.smallerFont {
+    font-size: small;
+}
