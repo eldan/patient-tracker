@@ -33,7 +33,7 @@ const EvImages = (props) => {
         const arrImages = Object.values(props.images);
         var arrPromises = [];
         for (var i = 0; i < arrImages.length; i++) {
-          arrPromises.push(setImageUrl(props.orgID + "/" + arrImages[i]));
+          arrPromises.push(setImageUrl(props.orgID + '/' + arrImages[i]));
         }
 
         Promise.all(arrPromises).then((results) => {
@@ -58,29 +58,24 @@ const EvImages = (props) => {
     setEnlargedImage(url);
   };
 
-  const EvImage = (prop) => {
+  function EvImage(prop) {
     const uid = prop.id;
     return (
-      <div className={classes["previewImage"]}>
+      <div className={classes['previewImage']}>
         {isModeEdit ? (
-          <Button
-            variant="danger"
-            size="sm"
-            className={classes["remEvbutton"]}
-            onClick={() => removeImage(uid)}
-          >
+          <Button variant='danger' size='sm' className={classes['remEvbutton']} onClick={() => removeImage(uid)}>
             -
           </Button>
         ) : null}
         <Image
-          style={{ height: "100%", cursor: "pointer" }}
+          thumbnail
+          style={{ height: '100%', cursor: 'pointer' }}
           src={prop.url}
-          alt=""
-          onClick={() => enlargeImage(prop.url)}
-        />
+          alt=''
+          onClick={() => enlargeImage(prop.url)} />
       </div>
     );
-  };
+  }
   const previewImageBeforeUpload = (event) => {
     if (event.target.files && event.target.files[0]) {
       const fileName = Date.now() + Math.floor(Math.random() * 9999);
@@ -94,16 +89,16 @@ const EvImages = (props) => {
 
   const AddEvImage = () => {
     return (
-      <div className={classes["upload-btn-wrapper"]}>
-        <Button className={classes["addEvbutton"]} variant="outline-primary">
+      <div className={classes['upload-btn-wrapper']}>
+        <Button className={classes['addEvbutton']} variant='outline-primary'>
           +
         </Button>
         <input
-          type="file"
-          accept="image/*"
-          name="myfile"
+          type='file'
+          accept='image/*'
+          name='myfile'
           onChange={previewImageBeforeUpload}
-          className={classes["addEvbutton"]}
+          className={classes['addEvbutton']}
         />
       </div>
     );
@@ -118,39 +113,29 @@ const EvImages = (props) => {
   const DrawEVImagesPlaceHolders = () => {
     // console.log("DrawEVImagesPlaceHolders");
     return Object.keys(evImages).map((id) => (
-      <img
-        key={id}
-        className={classes["placeHolderImage"]}
-        src={imagePlaceHolder}
-        alt=""
-      />
+      <img key={id} src={imagePlaceHolder} alt='' />
     ));
   };
 
   const DrawEVImages = () => {
-    return Object.keys(evImages).map((id) => (
-      <EvImage key={id} id={id} url={evImages[id]} />
-    ));
+    return Object.keys(evImages).map((id) => <EvImage key={id} id={id} url={evImages[id]} />);
   };
 
   const DrawEnlargeImage = () => (
     <>
-      <div
-        className={classes["backdrop"]}
-        onClick={() => setEnlargedImage(null)}
-      ></div>
+      <div className={classes['backDropForImage']} onClick={() => setEnlargedImage(null)}></div>
       <Image
         src={getEnlargedImages}
-        alt=""
+        alt=''
         onClick={() => setEnlargedImage(null)}
-        className={classes["maximizeImage"]}
+        className={classes['maximizeImage']}
       />
     </>
   );
 
   return (
     <>
-      <Container style={{ paddingRight: "0px" }}>
+      <Container style={{ paddingRight: '0px' }}>
         {getEnlargedImages !== null ? <DrawEnlargeImage /> : null}
         {isModeEdit ? (
           <>
@@ -159,11 +144,7 @@ const EvImages = (props) => {
           </>
         ) : null}
 
-        {props.tfShowImages === false ? (
-          <DrawEVImagesPlaceHolders />
-        ) : (
-          <DrawEVImages />
-        )}
+        {props.tfShowImages === false ? <DrawEVImagesPlaceHolders /> : <DrawEVImages />}
       </Container>
     </>
   );

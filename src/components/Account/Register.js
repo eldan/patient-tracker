@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Modal, Button, Form, Row, Col, Alert } from "react-bootstrap";
+import { Button, Modal, Form, Row, Col, Alert } from "react-bootstrap";
 import { useHistory } from "react-router-dom";
 import { db, auth } from "./../../Comm/firebase";
 
@@ -41,7 +41,6 @@ const Register = (props) => {
                  if (error) {
                    alert("Data could not be saved." + error);
                  } else {
-                   console.log ('data saved')
                    history.push("/");
                  }
                });
@@ -176,7 +175,7 @@ const Register = (props) => {
             </Form.Group>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="primary" onClick={submitForm}>
+            <Button variant="link" onClick={submitForm}>
               הירשם
             </Button>
           </Modal.Footer>

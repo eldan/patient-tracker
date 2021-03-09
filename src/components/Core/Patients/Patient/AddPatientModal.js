@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Modal, Button, Form, Row, Col } from "react-bootstrap";
+import classes from "./../Patients.module.css";
 import DatePicker from "react-datetime";
 import moment from "moment";
 import "react-datetime/css/react-datetime.css";
@@ -35,7 +36,7 @@ const AddPatient = (props) => {
       case "set_idcard":
         set_isrl_id(value);
         errors["isrl_id"] =
-          value.length < 3 || !RegExp("^[0-9]") ? "4 ספרות בלבד" : "";
+          value.length < 8 || !RegExp("^[0-9]") ? "8 ספרות" : "";
         break;
 
       case "set_name":
@@ -153,178 +154,158 @@ const AddPatient = (props) => {
 
   return (
     <>
-      {submit ? <WaitIcon /> : null}
-      <Modal
-        show={true}
-        onHide={props.handleCloseModalNewPatient}
-        animation={false} //cause a bug
-      >
-        <Modal.Header closeButton>
-          <Modal.Title className="hebrew">הוספת מטופל</Modal.Title>
+      {submit && <WaitIcon />}
+      <Modal show={true} onHide={props.handleCloseModalNewPatient} animation={true}>
+        <Modal.Header closeButton className={'modalHebrew'}>
+          <Modal.Title className='hebrew'>הוספת מטופל</Modal.Title>
         </Modal.Header>
         <Form>
-          <Modal.Body className="hebrew">
-            <Form.Group as={Row} controlId="isr_id">
-              <Form.Label column sm="12">
-                4 ספרות אחרונות של ת.ז.
+          <Modal.Body className='hebrew'>
+            <Form.Group as={Row} controlId='isr_id'>
+              <Form.Label column sm='12'>
+                מספר מקרה/קבלה
               </Form.Label>
-              <Col sm="10">
+              <Col sm='10'>
                 <Form.Control
-                  type="number"
-                  placeholder="4 ספרות אחרונות של ת.ז."
-                  name="set_idcard"
+                  type='number'
+                  placeholder='8 ספרות'
+                  name='set_idcard'
                   value={isrl_id}
                   onChange={(e) => {
-                    e.target.value = Math.max(0, parseInt(e.target.value))
-                      .toString()
-                      .slice(0, 4);
+                    e.target.value = Math.max(0, parseInt(e.target.value)).toString().slice(0, 8);
                     handleFormChange(e);
                   }}
                 />
-                {getErrors["isrl_id"].length > 0 && (
-                  <div style={{ color: "red" }}>{getErrors["isrl_id"]}</div>
-                )}
+                {getErrors['isrl_id'].length > 0 && <div style={{ color: 'red' }}>{getErrors['isrl_id']}</div>}
               </Col>
             </Form.Group>
-            <Form.Group as={Row} controlId="name">
-              <Form.Label column sm="12">
+            <Form.Group as={Row} controlId='name'>
+              <Form.Label column sm='12'>
                 שם מלא
               </Form.Label>
-              <Col sm="10">
+              <Col sm='10'>
                 <Form.Control
-                  type="text"
-                  placeholder="פלוני אלמוני"
+                  type='text'
+                  placeholder='פלוני אלמוני'
                   value={name.value}
-                  name="set_name"
+                  name='set_name'
                   onChange={handleFormChange}
                 />
-                {getErrors["set_name"].length > 0 && (
-                  <div style={{ color: "red" }}>{getErrors["set_name"]}</div>
-                )}
+                {getErrors['set_name'].length > 0 && <div style={{ color: 'red' }}>{getErrors['set_name']}</div>}
               </Col>
             </Form.Group>
-            <Form.Group as={Row} controlId="age">
-              <Form.Label column sm="12">
+            <Form.Group as={Row} controlId='age'>
+              <Form.Label column sm='12'>
                 גיל
               </Form.Label>
-              <Col sm="3">
+              <Col sm='3'>
                 <Form.Control
-                  type="number"
-                  placeholder=""
+                  type='number'
+                  placeholder=''
                   maxLength={5}
-                  name="set_age"
+                  name='set_age'
                   value={age.value}
                   onChange={(e) => {
-                    e.target.value = Math.max(0, parseInt(e.target.value))
-                      .toString()
-                      .slice(0, 5);
+                    e.target.value = Math.max(0, parseInt(e.target.value)).toString().slice(0, 5);
                     handleFormChange(e);
                   }}
                 />
-                {getErrors["set_age"].length > 0 && (
-                  <div style={{ color: "red" }}>{getErrors["set_age"]}</div>
-                )}
+                {getErrors['set_age'].length > 0 && <div style={{ color: 'red' }}>{getErrors['set_age']}</div>}
               </Col>
-              <Col sm="9" className="mt-2">
+              <Col sm='9' className='mt-2'>
                 <Form.Check
                   inline
-                  name="my"
-                  label="שנים"
-                  type="radio"
-                  id="1"
+                  name='my'
+                  label='שנים'
+                  type='radio'
+                  id='1'
                   checked
-                  onChange={(e) => set_month_year("ש׳")}
+                  onChange={(e) => set_month_year('ש׳')}
                 />
                 <Form.Check
-                  name="my"
-                  key="2"
+                  name='my'
+                  key='2'
                   inline
-                  label="חודשים"
-                  type="radio"
-                  id="2"
-                  onChange={(e) => set_month_year("ח׳")}
+                  label='חודשים'
+                  type='radio'
+                  id='2'
+                  onChange={(e) => set_month_year('ח׳')}
                 />
               </Col>
             </Form.Group>
             <hr />
-            <Form.Group as={Row} controlId="medical_cause">
-              <Form.Label column sm="12">
+            <Form.Group as={Row} controlId='medical_cause'>
+              <Form.Label column sm='12'>
                 אבחנה רפואית
               </Form.Label>
-              <Col sm="10">
+              <Col sm='10'>
                 <Form.Control
-                  as="textarea"
+                  as='textarea'
                   rows={3}
-                  placeholder=""
-                  name="set_medicalcause"
+                  placeholder=''
+                  name='set_medicalcause'
                   value={set_medicalcause.value}
                   onChange={handleFormChange}
                 />
-                {getErrors["set_medicalcause"].length > 0 && (
-                  <div style={{ color: "red" }}>
-                    {getErrors["set_medicalcause"]}
-                  </div>
+                {getErrors['set_medicalcause'].length > 0 && (
+                  <div style={{ color: 'red' }}>{getErrors['set_medicalcause']}</div>
                 )}
               </Col>
             </Form.Group>
             <hr />
 
-            <Form.Group as={Row} controlId="location">
-              <Form.Label column sm="12">
+            <Form.Group as={Row} controlId='location'>
+              <Form.Label column sm='12'>
                 מחלקה
               </Form.Label>
-              <Col sm="10">
+              <Col sm='10'>
                 <Form.Control
-                  type="text"
-                  placeholder="מחלקת..."
+                  type='text'
+                  placeholder='מחלקת...'
                   value={location.value}
-                  name="set_location"
+                  name='set_location'
                   onChange={handleFormChange}
                 />
-                {getErrors["set_location"].length > 0 && (
-                  <div style={{ color: "red" }}>
-                    {getErrors["set_location"]}
-                  </div>
+                {getErrors['set_location'].length > 0 && (
+                  <div style={{ color: 'red' }}>{getErrors['set_location']}</div>
                 )}
               </Col>
             </Form.Group>
-            <Form.Group as={Row} controlId="date">
-              <Form.Label column sm="12">
+            <Form.Group as={Row} controlId='date'>
+              <Form.Label column sm='12'>
                 תאריך + שעה
               </Form.Label>
-              <Col sm="10">
+              <Col sm='10'>
                 <DatePicker
                   inputProps={{ readOnly: true }}
-                  dateFormat="DD-MM-YYYY"
-                  timeFormat="hh:mm"
+                  dateFormat='DD-MM-YYYY'
+                  timeFormat='hh:mm'
                   value={dt}
                   onChange={(val) => setDt(val)}
                 />
               </Col>
             </Form.Group>
-            <Form.Group as={Row} controlId="event_memo">
-              <Form.Label column sm="12">
+            <Form.Group as={Row} controlId='event_memo'>
+              <Form.Label column sm='12'>
                 הערה
               </Form.Label>
-              <Col sm="10">
+              <Col sm='10'>
                 <Form.Control
-                  as="textarea"
+                  as='textarea'
                   rows={3}
-                  placeholder="הערה"
+                  placeholder='הערה'
                   value={memo.value}
-                  name="set_memo"
+                  name='set_memo'
                   onChange={handleFormChange}
                 />
-                {getErrors["set_memo"].length > 0 && (
-                  <div style={{ color: "red" }}>{getErrors["set_memo"]}</div>
-                )}
+                {getErrors['set_memo'].length > 0 && <div style={{ color: 'red' }}>{getErrors['set_memo']}</div>}
               </Col>
             </Form.Group>
-            <Form.Group as={Row} style={{ paddingRight: "0" }}>
+            <Form.Group as={Row} style={{ paddingRight: '0' }}>
               <Form.Label column sm={12}>
                 צילומים
               </Form.Label>
-              <Col sm="12">
+              <Col sm='12'>
                 <EvImages
                   onImagesToBeUploadedChange={handleImagesToBeUploadedChanged}
                   orgID={props.orgID}
@@ -334,15 +315,14 @@ const AddPatient = (props) => {
             </Form.Group>
           </Modal.Body>
           <Modal.Footer>
-            <Button variant="link" onClick={props.handleCloseModalNewPatient}>
+            <Button variant='link' onClick={props.handleCloseModalNewPatient}>
               סגור
             </Button>
             <Button
-              variant="primary"
+              variant='primary'
               onClick={submitForm}
               disabled={submit}
-              style={{ backgroundColor: "rgb(29 72 119)" }}
-            >
+              style={{ backgroundColor: 'rgb(29 72 119)' }}>
               הוספת מטופל
             </Button>
           </Modal.Footer>

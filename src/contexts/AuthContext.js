@@ -58,7 +58,6 @@ export function AuthProvider({ children }) {
           if (dataSnapshot.toJSON() != null) {
             const res = dataSnapshot.toJSON();
             console.log("Logged in user email:");
-            console.log(usrEmail);
             /* SET THE TITLE + FULL NAME */
             setUserFullName(
               res.title + " " + res.privateName + " " + res.familyName

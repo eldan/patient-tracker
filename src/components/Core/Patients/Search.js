@@ -18,23 +18,19 @@ const Search = (props) => {
     };
     
     return (
-      <InputGroup id="search">
+      <InputGroup id='search'>
         <FormControl
-          style={{ direction: "rtl" }}
-          placeholder="4 ספרות אחרונות של ת.ז."
+          style={{ direction: 'rtl' }}
+          placeholder='8 ספרות'
           value={searchIsrl_ID}
           onChange={handleChange}
         />
-        <Button
-          variant="link"
-          style={{ position: "absolute", zIndex: "99" }}
-          onClick={resetSearchField}
-        >
+        <Button variant='link' style={{ position: 'absolute', zIndex: '99' }} onClick={resetSearchField}>
           x
         </Button>
         <InputGroup.Prepend>
-          <InputGroup.Text style={{ direction: "rtl" }} className="text-right">
-            ת.ז.
+          <InputGroup.Text style={{ direction: 'rtl' }} className='text-right'>
+            מספר מקרה/קבלה
           </InputGroup.Text>
         </InputGroup.Prepend>
       </InputGroup>

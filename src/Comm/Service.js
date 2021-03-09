@@ -1,5 +1,29 @@
 import { db } from "./firebase";
-//import firebase from "./firebase";
+//TODO add storage function as well
+export const be_loadPatients = async (
+  getDefaultOrgID,
+  viewType,
+  callBack,
+  callBackError
+) => {
+  var ref = db.ref("patients/" + getDefaultOrgID);
+  var queryUserActive = "active";
+  if (viewType === "archive") queryUserActive = "deactive";
+  try {
+    ref
+      .orderByChild("status")
+      .equalTo(queryUserActive)
+      .once("value", function (dataSnapshot) {
+        if (dataSnapshot.toJSON() !== null) {
+          callBack(dataSnapshot.toJSON());
+        } else {
+          callBack({});
+        }
+      });
+  } catch (e) {
+    callBackError(e);
+  }
+};
 
 export const be_deletePatient = async (
   getDefaultOrgID,
@@ -26,7 +50,8 @@ export const be_addPatient = async (
 ) => {
   data.status = "active";
   data.events = true;
-  const eventToBePushed = data.event;
+  var eventToBePushed = data.event;
+  eventToBePushed.action = "userActivate";
   delete data.event;
   try {
     var reff1 = db.ref("patients/" + getDefaultOrgID);
@@ -59,11 +84,22 @@ export const be_addEvent = async (
   callBackError
 ) => {
   var toBeRemoved = false;
+  var rebringPatient = false;
   if (data.removePatient) {
     toBeRemoved = true;
+    data.location = "שוחרר";
+    data.action = "userDeactivate";
   }
+  if (data.rebringPatient) {
+    rebringPatient = true;
+    data.location = "הוחזר למערכת";
+    data.action = "userReactivate";
+  }
+
   delete data.removePatient;
+  delete data.rebringPatient;
   data.editor = userName;
+
   try {
     var reff = db.ref(
       "patients/" + getDefaultOrgID + "/" + patientID + "/events"
@@ -73,7 +109,17 @@ export const be_addEvent = async (
         callBackError(error);
       } else {
         if (toBeRemoved) {
-          setPatientDeactive(
+          be_setPatientDeactive(
+            getDefaultOrgID,
+            patientID,
+            callBack,
+            callBackError
+          );
+        } else {
+          callBack(true);
+        }
+        if (rebringPatient) {
+          be_setPatientActive(
             getDefaultOrgID,
             patientID,
             callBack,
@@ -90,7 +136,7 @@ export const be_addEvent = async (
 };
 
 //TODO instead of callBack(true) -> {res:202} dont remember the num
-const setPatientDeactive = async (
+const be_setPatientDeactive = async (
   getDefaultOrgID,
   patientID,
   callBack,
@@ -104,38 +150,14 @@ const setPatientDeactive = async (
       if (error) {
         callBackError(error);
       } else {
+        //Set memo to release
         callBack(true);
       }
     });
   } catch (e) {}
 };
 
-export const be_loadPatients = async (
-  getDefaultOrgID,
-  viewType,
-  callBack,
-  callBackError
-) => {
-  var ref = db.ref("patients/" + getDefaultOrgID);
-  var queryUserActive = "active";
-  if (viewType === "archive") queryUserActive = "deactive";
-  try {
-    ref
-      .orderByChild("status")
-      .equalTo(queryUserActive)
-      .on("value", function (dataSnapshot) {
-        if (dataSnapshot.toJSON() !== null) {
-          callBack(dataSnapshot.toJSON());
-        } else {
-          callBack({});
-        }
-      });
-  } catch (e) {
-    callBackError(e);
-  }
-};
-
-export const be_setPatientActive = async (
+const be_setPatientActive = async (
   getDefaultOrgID,
   patientID,
   callBack,

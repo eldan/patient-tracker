@@ -6,6 +6,7 @@ import moment from "moment";
 import firebase from "../../../../../../Comm/firebase";
 import EvImages from "../../EvImages/EvImages";
 import WaitIcon from "./../../../../../../util/Wait/Wait";
+import { be_addEvent } from "../../../../../../Comm/Service";
 
 const storageRef = firebase.storage().ref();
 const Compress = require("compress.js");
@@ -42,11 +43,13 @@ const AddEventModal = (props) => {
     }
     setErrors(errors);
   };
+
   const validateForm = (errors) => {
     let valid = true;
     Object.values(errors).forEach((val) => val.length > 0 && (valid = false));
     return valid;
   };
+
   const submitEvent = (isRemove) => {
     if (validateForm(getErrors)) {
       console.info("Valid Form");
@@ -66,7 +69,6 @@ const AddEventModal = (props) => {
       var uploadImageCount = 0;
       Object.keys(getImagesToBeUploaded).map((id) => {
         let file = getImagesToBeUploaded[id];
-        console.log(file);
         compress
           .compress([file], {
             size: 0.5, // the max size in MB, defaults to 2MB
@@ -109,12 +111,34 @@ const AddEventModal = (props) => {
         removePatient: isRemove,
         images: objImages,
       };
-      setSubmit(false);
-      props.handleAddEvent(props.patientID, postData);
+      
+      handleSaveEvent(postData);
+    }
+
+    async function handleSaveEvent(data) {
+      await be_addEvent(
+        props.defaultOrgID,
+        props.userName,
+        props.patientID,
+        data,
+        (res) => {
+          //Respond OK
+          setSubmit(false);
+
+          props.handleCloseEventModal();
+        },
+
+        (err) => {
+          //Respond Error
+          // setError(err);
+        }
+      );
     }
 
     function uploadImage(file, name) {
-      var uploadTask = storageRef.child(props.orgID + "/" + name).put(file);
+      var uploadTask = storageRef
+        .child(props.defaultOrgID + "/" + name)
+        .put(file);
       uploadTask.on(
         "state_changed",
         function (snapshot) {
@@ -140,67 +164,59 @@ const AddEventModal = (props) => {
 
   return (
     <>
-      {submit === true ? <WaitIcon zindex="30" /> : null}
-      <Modal
-        show={true}
-        onHide={props.handleCloseModal}
-        style={{ zindex: "10" }}
-      >
-        <Modal.Header closeButton>
+      {submit === true ? <WaitIcon /> : null}
+      <Modal show={true} onHide={props.handleCloseEventModal} >
+        <Modal.Header closeButton className={'modalHebrew'}>
           <Modal.Title>הוספת אירוע</Modal.Title>
         </Modal.Header>
-        <Modal.Body className="hebrew">
+        <Modal.Body className='hebrew'>
           <Form>
-            <Form.Group as={Row} controlId="location">
-              <Form.Label column sm="12">
+            <Form.Group as={Row} controlId='location'>
+              <Form.Label column sm='12'>
                 מחלקה
               </Form.Label>
-              <Col sm="12">
+              <Col sm='12'>
                 <Form.Control
-                  type="text"
-                  placeholder="מחלקת ..."
+                  type='text'
+                  placeholder='מחלקת ...'
                   value={location}
-                  name="set_location"
+                  name='set_location'
                   onChange={handleFormChange}
                 />
-                {getErrors["location"].length > 0 && (
-                  <div style={{ color: "red" }}>{getErrors["location"]}</div>
-                )}
+                {getErrors['location'].length > 0 && <div style={{ color: 'red' }}>{getErrors['location']}</div>}
               </Col>
             </Form.Group>
 
-            <Form.Group as={Row} controlId="date">
-              <Form.Label column sm="12">
+            <Form.Group as={Row} controlId='date'>
+              <Form.Label column sm='12'>
                 תאריך + שעה
               </Form.Label>
-              <Col sm="12">
+              <Col sm='12'>
                 <DatePicker
                   inputProps={{ readOnly: true }}
-                  dateFormat="DD-MM-YYYY"
-                  timeFormat="hh:mm"
+                  dateFormat='DD-MM-YYYY'
+                  timeFormat='hh:mm'
                   value={dt}
-                  name="set_date_time"
+                  name='set_date_time'
                   onChange={(val) => setDt(val)}
                 />
               </Col>
             </Form.Group>
 
-            <Form.Group as={Row} controlId="event_memo">
+            <Form.Group as={Row} controlId='event_memo'>
               <Form.Label column sm={12}>
                 הערה
               </Form.Label>
               <Col sm={12}>
                 <Form.Control
-                  as="textarea"
+                  as='textarea'
                   rows={3}
-                  placeholder="הערה"
+                  placeholder='הערה'
                   value={memo.value}
-                  name="set_memo"
+                  name='set_memo'
                   onChange={handleFormChange}
                 />
-                {getErrors["memo"].length > 0 && (
-                  <div style={{ color: "red" }}>{getErrors["memo"]}</div>
-                )}
+                {getErrors['memo'].length > 0 && <div style={{ color: 'red' }}>{getErrors['memo']}</div>}
               </Col>
             </Form.Group>
 
@@ -210,9 +226,8 @@ const AddEventModal = (props) => {
               </Form.Label>
               <Col sm={12}>
                 <EvImages
-                  onImagesToBeUploadedChange={
-                    handleImagesToBeUploadedChanged
-                  }
+                  key='0'
+                  onImagesToBeUploadedChange={handleImagesToBeUploadedChanged}
                   orgID={props.orgID}
                   isEdit={true}
                 />
@@ -222,23 +237,11 @@ const AddEventModal = (props) => {
         </Modal.Body>
 
         <Modal.Footer>
-          <Button variant="link" onClick={props.handleCloseModal}>
+          <Button variant='link' onClick={props.handleCloseEventModal}>
             סגור
           </Button>
 
-          <Button
-            variant="success"
-            onClick={() => submitEvent(true)}
-            disabled={submit}
-          >
-            שחרר חולה
-          </Button>
-
-          <Button
-            variant="primary"
-            onClick={() => submitEvent(false)}
-            disabled={submit}
-          >
+          <Button variant='primary' onClick={() => submitEvent(false)} disabled={submit}>
             הוספת אירוע
           </Button>
         </Modal.Footer>

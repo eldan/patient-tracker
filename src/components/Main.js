@@ -16,6 +16,7 @@ const NoMatchPage = () => {
       <br />
       <h3>404 - Not found.</h3>
       Wrong page!
+
     </>
   );
 };
@@ -55,7 +56,7 @@ const Main = (props) => {
     <>
       <p style={{ direction: "rtl", textAlign: "right", padding: "10px" }}>
         <h3>התחברת בהצלחה.</h3>
-        <h4>צור קשר עם מנהל המחלקה כדי שישייך אותך למחלקה.</h4>
+        <h4>הינך מועבר למחלקה שלך...</h4>
         <Button onClick={handleLogout}>התנתק</Button>
       </p>
     </>

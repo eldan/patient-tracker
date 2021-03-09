@@ -57,11 +57,11 @@ const ManageUsers = () => {
         if (dataSnapshot.toJSON() !== null) {
           setUsers(dataSnapshot.toJSON());
         } else {
-          console.log("loadPatients: no result");
+          // console.log("loadPatients: no result");
         }
       });
     } catch (e) {
-      console.log("error " + e);
+      // console.log("error " + e);
     }
   };
   const handleUserProperty = (user, userID) => {
@@ -121,7 +121,7 @@ const ManageUsers = () => {
     reff1
       .set(data, function (error) {
         if (error) {
-          console.log("reff1: " + error);
+          // console.log("reff1: " + error);
         }
       })
       .then((res) => {
@@ -129,9 +129,9 @@ const ManageUsers = () => {
         const reff2 = db.ref("organisations/" + orgID + "/users/" + user.id);
         reff2.set(usrID, function (error) {
           if (error) {
-            console.log("reff2: " + error);
+            // console.log("reff2: " + error);
           } else {
-            console.log("user Assigned ok. ");
+            // console.log("user Assigned ok. ");
           }
         });
       });
@@ -150,9 +150,9 @@ const ManageUsers = () => {
 
         reff2.set(null, function (error) {
           if (error) {
-            console.log("reff3: " + error);
+            // console.log("reff3: " + error);
           } else {
-            console.log("user UNassigned ok. ");
+            // console.log("user UNassigned ok. ");
           }
         });
       });

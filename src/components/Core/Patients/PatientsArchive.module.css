@@ -1,15 +1,43 @@
-
-.cardheader {
-     padding: 5px !important;
-     width: -webkit-fill-available;
-     margin: 0px !important;
-     background-color: #666 !important;
+.cardBox {
+  margin: 10px 10px 20px 10px;
+  border-radius: 12px;
+  background-color: rgb(230, 230, 230);
+  box-shadow: 0px 0px 2px 2px #ccc; /* Opera 10.5, IE 9, Firefox 4+, Chrome 6+, iOS 5 */
+  padding: 10px;
+  cursor: pointer;
 }
 
-.summary_line {
-    color:white;
+.cardBoxFullDetails {
+  margin: 0px 0px auto 0px;
+  border: none;
+  box-shadow: none;
+  border-radius: 0px;
+  background-color: rgb(230, 230, 230);
 }
 
-.boxEvent {
-      color: #666 !important;
+.location {
+  font-weight: 400;
+  font-size: 1em;
+  border-radius: 18px;
+  background-color: gray;
+  padding: 3px 6px 3px 6px;
+  color: white;
+  width: fit-content;
+  position: relative;
+  bottom: 20px;
+  margin-bottom: -14px;
+  right: 7px;
+  border: 3px solid white;
+}
+
+.countEvents {
+  direction: rtl;
+  font-size: 0.8em;
+  border-radius: 18px;
+  background-color: lightgray;
+  padding: 3px 6px 3px 6px;
+  color: rgb(110, 110, 110);
+  width: fit-content;
+  position: relative;
+  /* border: 1px solid gray; */
 }

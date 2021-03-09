@@ -1,69 +1,59 @@
-import React, { useState, useEffect } from "react";
-import { Accordion, Card, Button, Container } from "react-bootstrap";
-import AddPatientModal from "./Patient/AddPatientModal";
-import PatientSummary from "./PatientSummary";
-import AddEventModal from "./Patient/Events/Event/AddEventModal";
-import Event from "./Patient/Events/Event/Event";
-import LastEvent from "./Patient/Events/Event/LastEvent";
-import WaitIcon from "../../../util/Wait/Wait";
-import {
-  be_loadPatients,
-  be_deletePatient,
-  be_setPatientActive,
-  be_addEvent,
-  be_addPatient,
-} from "./../../../Comm/Backend";
+import React, { useState, useEffect } from 'react';
 
-import classes_archive from "./PatientsArchive.module.css";
-import classes from "./Patients.module.css";
-import "react-datetime/css/react-datetime.css";
+import { Button, Container } from 'react-bootstrap';
 
-import { useAuth } from "./../../../contexts/AuthContext";
+import AddPatientModal from './Patient/AddPatientModal';
+import PatientFullDetails from './Patient/PatientFullDetails';
+import PatientSummary from './PatientSummary';
+import Event from './Patient/Events/Event/Event';
+import WaitIcon from '../../../util/Wait/Wait';
+import { be_loadPatients, be_deletePatient, be_addPatient, be_addEvent } from '../../../Comm/Service';
 
-import Error from "./../../../Comm/Error"; // TODO not realy doing this - should put inside good infra
+import classes_archive from './PatientsArchive.module.css';
+import classes from './Patients.module.css';
+import 'react-datetime/css/react-datetime.css';
+
+import { useAuth } from './../../../contexts/AuthContext';
+
+import Error from './../../../Comm/Error'; // TODO not realy doing this - should put inside good infra
+import firebase from './../../../Comm/firebase';
 
 const Patients = (props) => {
-  // isPatientDetailedWhereOpened is for the images
-
-  // const [
-  //   isPatientDetailedAlreadyOpened,
-  //   setPatientDetailedAlreadyOpened,
-  // ] = useState({});
-
   const [patients, setPatients] = useState({});
   const [filteredPatients, setFilteredPatients] = useState({});
-
   const [focusPatientID, setFocusPatientID] = useState(null);
-
-  const { getUserFullName, getDefaultOrgID } = useAuth();
-  const userName = getUserFullName;
-
   const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showModal, setModal] = useState(false);
-  const [showModalEvent, setModalEvent] = useState(false);
+  const [allowUItoRefresh, setAllowUItoRefresh] = useState(true);
+  const { getUserFullName, getDefaultOrgID } = useAuth();
+  const userName = getUserFullName;
+  const storageRef = firebase.storage().ref();
+
   const handleCloseModalNewPatient = () => setModal(false);
 
   const handleOpenModalNewPatient = (e) => {
     setModal(true);
   };
-  const handleCloseModalNewEvent = () => {
-    setModalEvent(false);
-  };
-  const handleOpenModalNewEvent = (patientID) => {
-    setFocusPatientID(patientID);
-    setModalEvent(true);
+
+  const resetFocusPatient = () => {
+    setFocusPatientID(null);
   };
 
   useEffect(() => {
-    console.log("Patients > useEffect 1");
+    // console.log('Patients > useEffect 1');
+    /*
+    Reload data when changing Organisation or to/from Archive
+    */
     loadPatients();
   }, [getDefaultOrgID, props.viewType]);
 
-  // useEffect After patients change. Event change /  add Patient or when search is changed
   useEffect(() => {
-    console.log("Patients > useEffect 2");
-    if (patients !== null) {
+    // console.log('Patients > useEffect 2, could be patient.length == 0 too...');
+    /*
+    change filtered result when patient or search is changing
+    */
+    if (Object.values(patients).length >= 0 && allowUItoRefresh) {
       const newPatients = {};
       Object.keys(patients).map((id) => {
         if (patients[id].isrl_id.includes(props.searchCriteria)) {
@@ -73,13 +63,101 @@ const Patients = (props) => {
       });
       setFilteredPatients(newPatients);
     }
-  }, [patients, props.searchCriteria]);
+    if (!allowUItoRefresh) {
+      const timer = setTimeout(() => {
+        loadPatients();
 
-  //TODO use async for chaining methods
-  async function handleRemovePatient(patientID) {
+        setAllowUItoRefresh(true);
+      }, 800);
+      return () => clearTimeout(timer);
+    }
+  }, [patients, props.searchCriteria, allowUItoRefresh]);
+
+  async function setPatientDeactive() {
+    setAllowUItoRefresh(false);
+    const tmpFocusPatientID = focusPatientID;
+    resetFocusPatient();
+    setLoading(true);
+    const data = {
+      editor: getUserFullName,
+      time: new Date().toString(),
+      removePatient: true,
+    };
+    await be_addEvent(
+      getDefaultOrgID,
+      getUserFullName,
+      tmpFocusPatientID,
+      data,
+      (res) => {
+        //Respond OK
+      },
+      (err) => {
+        //Respond Error
+        setError(err);
+      }
+    );
+  }
+
+  async function setPatientActive() {
+    setAllowUItoRefresh(false);
+    const tmpFocusPatientID = focusPatientID;
+    resetFocusPatient();
+    setLoading(true);
+    const data = {
+      editor: getUserFullName,
+      time: new Date().toString(),
+      rebringPatient: true,
+    };
+
+    await be_addEvent(
+      getDefaultOrgID,
+      getUserFullName,
+      tmpFocusPatientID,
+      data,
+      (res) => {
+        //Respond OK
+      },
+      (err) => {
+        //Respond Error
+        setError(err);
+      }
+    );
+  }
+
+  //TODO use async for chainning methods
+  async function handleRemovePatient() {
+    // var imageToRemove = [];
+    Object.values(patients).map((patient) => {
+      Object.values(patient.events).map((event) => {
+        if (event.images) {
+          Object.values(event.images).map((image) => {
+            // Create a reference to the file to delete
+            const path = getDefaultOrgID + '/' + image;
+            var ref = storageRef.child(path);
+
+            // Delete the file
+            ref
+              .delete()
+              .then(() => {
+                // File deleted successfully
+              })
+              .catch((error) => {
+                // Uh-oh, an error occurred!
+              });
+             
+          });
+          return null;
+        }
+        return null;
+      });
+      return null;
+    });
+    setAllowUItoRefresh(false);
+    const pid = focusPatientID; //need temporary id if not setFocusPatientID will reset the data and error will occure
+    setFocusPatientID(null);
     await be_deletePatient(
       getDefaultOrgID,
-      patientID,
+      pid,
       (res) => {
         //Respond OK
       },
@@ -110,44 +188,7 @@ const Patients = (props) => {
     );
   }
 
-  async function saveEvent(patientID, data) {
-    await be_addEvent(
-      getDefaultOrgID,
-      userName,
-      patientID,
-      data,
-      (res) => {
-        //Respond OK
-        closeAllModalAndResetData();
-      },
-
-      (err) => {
-        //Respond Error
-        setError(err);
-        closeAllModalAndResetData();
-      }
-    );
-  }
-
-  async function setPatientActive(patientID) {
-    setLoading(true);
-    await be_setPatientActive(
-      getDefaultOrgID,
-      patientID,
-      (res) => {
-        //Respond OK
-        closeAllModalAndResetData();
-      },
-      (err) => {
-        //Respond Error
-        setError(err);
-        closeAllModalAndResetData();
-      }
-    );
-  }
-
   async function loadPatients() {
-    console.log("loadPatients");
     setLoading(true);
     await be_loadPatients(
       getDefaultOrgID,
@@ -166,14 +207,13 @@ const Patients = (props) => {
   }
 
   const closeAllModalAndResetData = () => {
-    handleCloseModalNewEvent();
     handleCloseModalNewPatient();
     loadPatients();
     setLoading(false);
   };
 
   function ClassSelectorForArchive(className) {
-    if (props.viewType === "archive") {
+    if (props.viewType === 'archive') {
       return classes_archive[className];
     } else return classes[className];
   }
@@ -188,148 +228,115 @@ const Patients = (props) => {
       try {
         tmp = person.events[lastElement][property];
       } catch (e) {
-        tmp = "";
+        tmp = '';
       }
       return tmp;
     };
 
     const handlePatientDetail = (patientID) => {
-      // if (isPatientDetailedAlreadyOpened[patientID] === undefined) {
-      //   setPatientDetailedAlreadyOpened({
-      //     ...isPatientDetailedAlreadyOpened,
-      //     [patientID]: true,
-      //   });
-      // }
       setFocusPatientID(patientID);
+      //BG should not move: position: fix
     };
-
+    // const MedicalCause = (props) => {
+    //   return <div className={classes["medicalCause"]}>{props.str}</div>;
+    // };
     return Object.keys(filteredPatients).map((id) => (
-      <Card key={id} className={classes["cardBox"]}>
-        <Card.Header className={ClassSelectorForArchive("cardheader")}>
-          <Accordion.Toggle
-            id={id}
-            as={Button}
-            variant="link"
-            eventKey={"a_" + id}
-            className={classes["cardheaderbutton"]}
-            onClick={() => handlePatientDetail(id)}
-          >
-            <PatientSummary patient={filteredPatients[id]} />
+      <div
+        className={ClassSelectorForArchive('cardBox')}
+        key={id}
+        as={Button}
+        variant='link'
+        onClick={() => handlePatientDetail(id)}>
+        <PatientSummary patient={filteredPatients[id]} />
+        <div
+          className={classes['lastUpdateText']}
+          style={{
+            textAlign: 'right',
+          }}>
+          <hr className={classes['hr']} />
+          {/* <MedicalCause str={filteredPatients[id].medical_cause} /> */}
+          {Object.keys(filteredPatients[id].events).length > 1 ? (
+            <div className={ClassSelectorForArchive('countEvents')}>
+              {Object.keys(filteredPatients[id].events).length} אירועים
+            </div>
+          ) : (
+            <div className={ClassSelectorForArchive('countEvents')}>אירוע אחד</div>
+          )}
+        </div>
 
-            {/* Last Event Details */}
-            <LastEvent
-              location={getLastPatientEvent(filteredPatients[id], "location")}
-              editor={getLastPatientEvent(filteredPatients[id], "editor")}
-              memo={[Object.keys(filteredPatients[id].events).length - 1].memo}
-              time={new Date(
-                getLastPatientEvent(filteredPatients[id], "time")
-              ).toLocaleString()}
-            />
-          </Accordion.Toggle>
-        </Card.Header>
-        <Accordion.Collapse eventKey={"a_" + id}>
-          <Card.Body className={classes["card"]}>
-            <DrawEventButtons id={id} />
-            { focusPatientID===id ?  <DrawEvents events={filteredPatients[id].events} patientID={id} /> : null}
-          </Card.Body>
-        </Accordion.Collapse>
-      </Card>
+        <Event
+          key={id}
+          location={getLastPatientEvent(filteredPatients[id], 'location')}
+          editor={getLastPatientEvent(filteredPatients[id], 'editor')}
+          memo={getLastPatientEvent(filteredPatients[id], 'memo')}
+          time={new Date(getLastPatientEvent(filteredPatients[id], 'time')).toLocaleString()}
+          viewType={props.viewType}
+        />
+      </div>
     ));
   });
-
-  const DrawEventButtons = (patient) => {
-    const rt =
-      props.viewType !== "archive" ? (
-        <Button
-          className={classes["buttonAddEvent"]}
-          onClick={() => handleOpenModalNewEvent(patient.id)}
-        >
-          הוספת אירוע
-        </Button>
-      ) : (
-        <>
-          <Button
-            variant="link"
-            className={classes["buttonAddEventArchive"]}
-            onClick={() => setPatientActive(patient.id)}
-          >
-            החזר לרשימת החולים
-          </Button>
-          <Button
-            variant="danger"
-            onClick={() => handleRemovePatient(patient.id)}
-          >
-            מחק חולה
-          </Button>
-        </>
-      );
-    return rt;
+  const refreshGUI = (tf) => {
+    if (tf) loadPatients();
   };
-
-  const DrawEvents = (p) => {
-    const arr = Object.values(p.events).reverse();
-    const obj = [];
-    let i;
-    for (i = 0; i < arr.length; i++) {
-      obj[i] = (
-        <Event
-          key={i}
-          location={arr[i].location}
-          memo={arr[i].memo}
-          time={arr[i].time}
-          editor={arr[i].editor}
-          images={arr[i].images}
-          defaultOrgID={getDefaultOrgID}
-        />
-      );
-    }
-    return obj;
-  };
-
   return (
     <>
-      {/* <Search FSetSearchIsrl_ID={FSetSearchIsrl_ID} /> */}
-      {error ? <Error setError={setError} errorMsg={error} /> : null}
-      {loading ? <WaitIcon /> : null}
-      {props.viewType === "archive" ? null : (
-        <Button
-          variant="primary"
-          style={{ backgroundColor: "#0062cc" }}
-          onClick={handleOpenModalNewPatient}
-          block
-        >
-          הוספת מטופל
-        </Button>
-      )}
-      {showModalEvent ? (
-        <AddEventModal
-          handleCloseModal={handleCloseModalNewEvent}
-          handleAddEvent={saveEvent}
-          patientID={focusPatientID}
-          orgID={getDefaultOrgID}
-          // isPatientDetailedAlreadyOpened={
-          //   isPatientDetailedAlreadyOpened[focusPatientID]
-          // }
-        />
-      ) : null}
+      <div className={focusPatientID}>
+        {focusPatientID !== null && (
+          <PatientFullDetails
+            defaultOrgID={getDefaultOrgID}
+            focusPatientID={focusPatientID}
+            userName={getUserFullName}
+            patient={filteredPatients[focusPatientID]}
+            resetFocusPatient={resetFocusPatient} //will automatically close window
+            // handleOpenModalNewEvent={handleOpenModalNewEvent}
+            setPatientActive={setPatientActive}
+            setPatientDeactive={setPatientDeactive}
+            handleRemovePatient={handleRemovePatient}
+            viewType={props.viewType}
+            refreshGUI={(tf) => refreshGUI(tf)}
+          />
+        )}
+        {error && <Error setError={setError} errorMsg={error} />}
 
-      {props.viewType === "archive" ? (
-        <h1 className="text-center">Archive</h1>
-      ) : null}
-
-      <Container className={classes["container"]} fluid>
-        {showModal ? (
-          <AddPatientModal
-            handleCloseModalNewPatient={handleCloseModalNewPatient}
-            handleAddPatient={savePatient}
+        {props.viewType === 'archive' ? null : (
+          <div style={{ textAlign: 'center' }}>
+            <Button
+              variant='primary'
+              size='sm'
+              style={{
+                backgroundColor: '#0062cc',
+                // borderRadius: "12px",
+                height: '35px',
+                width: '-webkit-fill-available',
+                margin: '3px 8px 0px 8px',
+              }}
+              onClick={handleOpenModalNewPatient}>
+              הוספת מאושפז <i className='fas fa-user-plus'></i>
+            </Button>
+          </div>
+        )}
+        {/* {showModalEvent && (
+          <AddEventModal
+            handleCloseModal={handleCloseModalNewEvent}
+            handleSaveEvent={handleSaveEvent}
+            patientID={focusPatientID}
             orgID={getDefaultOrgID}
           />
-        ) : null}
+        )} */}
+        {props.viewType === 'archive' && <h1 className='text-center'>ארכיון</h1>}
+        <Container className={classes['container']} fluid>
+          {showModal && (
+            <AddPatientModal
+              handleCloseModalNewPatient={handleCloseModalNewPatient}
+              handleAddPatient={savePatient}
+              orgID={getDefaultOrgID}
+            />
+          )}
 
-        <Accordion>
           <DrawPatients />
-        </Accordion>
-      </Container>
+        </Container>
+      </div>
+      {loading && <WaitIcon />}
     </>
   );
 };

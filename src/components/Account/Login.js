@@ -1,9 +1,10 @@
 import React, { useState } from "react";
 import { Jumbotron, Container, Button, Form } from "react-bootstrap";
+
+
 import { useHistory } from "react-router-dom";
 import { useAuth } from "./../../contexts/AuthContext";
-//import { getUserDetails } from "./../../Comm/Service";
-//import { db } from "./../../Comm/firebase";
+
 
 import WaitIcon from "./../../util/Wait/Wait";
 import splash from "./../../images/splash.png";
@@ -18,29 +19,6 @@ const Login = (props) => {
   const [loading, setLoading] = useState(false);
   const [userName, setUserName] = useState("");
   const [password, setPassword] = useState("");
-
-  //const Submit = () => {
-  // setError("");
-  // const data = {
-  //   email: userName,
-  //   password: password,
-  //   returnSecureToken: true,
-  // };
-  // setLoading(true);
-  //   axios
-  //     .post(
-  //       "https://identitytoolkit.googleapis.com/v1/accounts:signInWithPassword?key=AIzaSyDHYbAWu45xrS7O3usjiSisFd9bx67O-xo",
-  //       data
-  //     )
-  //     .then((response) => {
-  //       setLoading(false);
-  //       history.push("/");
-  //     })
-  //     .catch((e) => {
-  //       setError("Failed to log in");
-  //       console.log(e);
-  //     });
-  //};
 
   async function handleSubmit(e) {
     e.preventDefault();
