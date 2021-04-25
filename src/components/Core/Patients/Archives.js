@@ -7,7 +7,6 @@ const Archives = () => {
         <Patients/>
       </>
     );
-    
 };
 
 export default Archives;

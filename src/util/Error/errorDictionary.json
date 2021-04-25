@@ -1,0 +1,15 @@
+{
+  "1": "No Connection",
+  "10": "Get User Details",
+  "11": "Set Patient Deactive",
+  "12": "Set Patient Active",
+  "13": "Handle Remove Patient",
+  "14": "Delete Image",
+  "15": "Remove Patient",
+  "16": "Handle Save Event",
+  "17": "Upload Image",
+  "18": "User Corrupted",
+  "19": "Add to Organization",
+  "50": "Load Patients",
+  "888": "Debug purpose"
+}

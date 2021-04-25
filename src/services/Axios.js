@@ -1,5 +1,5 @@
 import axios from "axios";
 
 export default axios.create({
-  baseURL: "https://patient-tracker-8a957.firebaseio.com",
+  baseURL: process.env.REACT_APP_FIREBASE_AUTH_DOMAIN,
 });

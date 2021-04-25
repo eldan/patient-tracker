@@ -7,22 +7,20 @@ import PatientFullDetails from './Patient/PatientFullDetails';
 import PatientSummary from './PatientSummary';
 import Event from './Patient/Events/Event/Event';
 import WaitIcon from '../../../util/Wait/Wait';
-import { be_loadPatients, be_deletePatient, be_addPatient, be_addEvent } from '../../../Comm/Service';
+import { be_loadPatients, be_deletePatient, be_addPatient, be_addEvent } from '../../../services/Service';
 
 import classes_archive from './PatientsArchive.module.css';
 import classes from './Patients.module.css';
 import 'react-datetime/css/react-datetime.css';
 
 import { useAuth } from './../../../contexts/AuthContext';
-
-import Error from './../../../Comm/Error'; // TODO not realy doing this - should put inside good infra
-import firebase from './../../../Comm/firebase';
+import firebase from './../../../services/firebase';
 
 const Patients = (props) => {
+  
   const [patients, setPatients] = useState({});
   const [filteredPatients, setFilteredPatients] = useState({});
   const [focusPatientID, setFocusPatientID] = useState(null);
-  const [error, setError] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showModal, setModal] = useState(false);
   const [allowUItoRefresh, setAllowUItoRefresh] = useState(true);
@@ -41,18 +39,19 @@ const Patients = (props) => {
   };
 
   useEffect(() => {
-    // console.log('Patients > useEffect 1');
-    /*
-    Reload data when changing Organisation or to/from Archive
-    */
-    loadPatients();
+    // Reload data when changing Organization or to/from Archive
+
+    loadPatients();    
+    // const abortController = new AbortController();
+    // const signal = abortController.signal;
+    // loadPatients({signal:signal});
+    // return function cleanup(){
+    //   abortController.abort();
+    // }
   }, [getDefaultOrgID, props.viewType]);
 
   useEffect(() => {
-    // console.log('Patients > useEffect 2, could be patient.length == 0 too...');
-    /*
-    change filtered result when patient or search is changing
-    */
+    // Change filtered result when patient or search is changing
     if (Object.values(patients).length >= 0 && allowUItoRefresh) {
       const newPatients = {};
       Object.keys(patients).map((id) => {
@@ -92,8 +91,7 @@ const Patients = (props) => {
         //Respond OK
       },
       (err) => {
-        //Respond Error
-        setError(err);
+        props.handleSetError(11);
       }
     );
   }
@@ -118,15 +116,14 @@ const Patients = (props) => {
         //Respond OK
       },
       (err) => {
-        //Respond Error
-        setError(err);
+        props.handleSetError(12);
       }
     );
   }
 
   //TODO use async for chainning methods
   async function handleRemovePatient() {
-    // var imageToRemove = [];
+    
     Object.values(patients).map((patient) => {
       Object.values(patient.events).map((event) => {
         if (event.images) {
@@ -134,7 +131,6 @@ const Patients = (props) => {
             // Create a reference to the file to delete
             const path = getDefaultOrgID + '/' + image;
             var ref = storageRef.child(path);
-
             // Delete the file
             ref
               .delete()
@@ -142,9 +138,8 @@ const Patients = (props) => {
                 // File deleted successfully
               })
               .catch((error) => {
-                // Uh-oh, an error occurred!
+                props.handleSetError(14);
               });
-             
           });
           return null;
         }
@@ -161,10 +156,8 @@ const Patients = (props) => {
       (res) => {
         //Respond OK
       },
-
       (err) => {
-        //Respond Error
-        setError(err);
+        props.handleSetError(13);
       }
     );
   }
@@ -181,9 +174,8 @@ const Patients = (props) => {
       },
 
       (err) => {
-        //Respond Error
         closeAllModalAndResetData();
-        setError(err);
+        props.handleSetError(15);
       }
     );
   }
@@ -199,8 +191,7 @@ const Patients = (props) => {
         setLoading(false);
       },
       (err) => {
-        //Respond Error
-        setError(err);
+        props.handleSetError(20);
         setLoading(false);
       }
     );
@@ -220,7 +211,7 @@ const Patients = (props) => {
 
   const DrawPatients = React.memo(() => {
     const getLastPatientEvent = (person, property) => {
-      //TODO this is redone for each name which is bad, should be done and only after, get the name
+      //TODO Refactor: this is redone for each name which is bad, should be done and only after, get the name
       let lastElement;
       for (lastElement in person.events);
 
@@ -235,11 +226,12 @@ const Patients = (props) => {
 
     const handlePatientDetail = (patientID) => {
       setFocusPatientID(patientID);
-      //BG should not move: position: fix
     };
-    // const MedicalCause = (props) => {
-    //   return <div className={classes["medicalCause"]}>{props.str}</div>;
-    // };
+
+    const MedicalCause = (props) => {
+      return <div className={classes['medicalCause']}>{props.str}</div>;
+    };
+
     return Object.keys(filteredPatients).map((id) => (
       <div
         className={ClassSelectorForArchive('cardBox')}
@@ -248,13 +240,9 @@ const Patients = (props) => {
         variant='link'
         onClick={() => handlePatientDetail(id)}>
         <PatientSummary patient={filteredPatients[id]} />
-        <div
-          className={classes['lastUpdateText']}
-          style={{
-            textAlign: 'right',
-          }}>
+        <div className={classes['lastUpdateText']}>
+          <MedicalCause str={filteredPatients[id].medical_cause} />
           <hr className={classes['hr']} />
-          {/* <MedicalCause str={filteredPatients[id].medical_cause} /> */}
           {Object.keys(filteredPatients[id].events).length > 1 ? (
             <div className={ClassSelectorForArchive('countEvents')}>
               {Object.keys(filteredPatients[id].events).length} אירועים
@@ -278,17 +266,18 @@ const Patients = (props) => {
   const refreshGUI = (tf) => {
     if (tf) loadPatients();
   };
+
   return (
     <>
       <div className={focusPatientID}>
         {focusPatientID !== null && (
           <PatientFullDetails
+            handleSetError={(err) => props.handleSetError(err)}
             defaultOrgID={getDefaultOrgID}
             focusPatientID={focusPatientID}
             userName={getUserFullName}
             patient={filteredPatients[focusPatientID]}
             resetFocusPatient={resetFocusPatient} //will automatically close window
-            // handleOpenModalNewEvent={handleOpenModalNewEvent}
             setPatientActive={setPatientActive}
             setPatientDeactive={setPatientDeactive}
             handleRemovePatient={handleRemovePatient}
@@ -296,16 +285,15 @@ const Patients = (props) => {
             refreshGUI={(tf) => refreshGUI(tf)}
           />
         )}
-        {error && <Error setError={setError} errorMsg={error} />}
 
+        {/* ---Archive--- */}
         {props.viewType === 'archive' ? null : (
-          <div style={{ textAlign: 'center' }}>
+          <div className='text-center'>
             <Button
               variant='primary'
               size='sm'
               style={{
                 backgroundColor: '#0062cc',
-                // borderRadius: "12px",
                 height: '35px',
                 width: '-webkit-fill-available',
                 margin: '3px 8px 0px 8px',
@@ -315,14 +303,7 @@ const Patients = (props) => {
             </Button>
           </div>
         )}
-        {/* {showModalEvent && (
-          <AddEventModal
-            handleCloseModal={handleCloseModalNewEvent}
-            handleSaveEvent={handleSaveEvent}
-            patientID={focusPatientID}
-            orgID={getDefaultOrgID}
-          />
-        )} */}
+
         {props.viewType === 'archive' && <h1 className='text-center'>ארכיון</h1>}
         <Container className={classes['container']} fluid>
           {showModal && (
@@ -332,7 +313,6 @@ const Patients = (props) => {
               orgID={getDefaultOrgID}
             />
           )}
-
           <DrawPatients />
         </Container>
       </div>

@@ -1,13 +1,11 @@
 {
-  "homepage": "http://eldanet.com/patient-tracker-v2",
-  "name": "showcase_for_web",
-  "version": "0.1.0",
+  "homepage": "http://eldanet.com/patient-tracker-v3",
+  "name": "patientracker",
+  "version": "3.0.0",
   "private": true,
   "dependencies": {
     "@google-cloud/storage": "^5.7.0",
-    "@material-ui/core": "^4.11.3",
-    "@material-ui/icons": "^4.11.2",
-    "@react-firebase/database": "^0.3.11",
+    "@react-firebase/database": "^0.2.10",
     "@testing-library/jest-dom": "^5.11.5",
     "@testing-library/react": "^11.1.0",
     "@testing-library/user-event": "^12.1.10",

@@ -14,37 +14,28 @@ const Event = (props) => {
   }
   return (
     <>
-      <div className={classes["boxEvent"]}>
-        {props.location !== "" && (
-          <div className={ClassSelectorForArchive("location")}>
-            {props.location}
-          </div>
-        )}
+      <div className={classes['boxEvent']}>
+        {props.location !== '' && <div className={ClassSelectorForArchive('location')}>{props.location}</div>}
         <Row>
-          <Col style={{ textAlign: "right", paddingRight: "25px" }}>
-            <div className={classes["author"]}>{props.editor}</div>
+          <Col className='pr-4'>
+            <div className={classes['author']}>{props.editor}</div>
           </Col>
-          <Col style={{ textAlign: "left", paddingLeft: "20px" }}>
-            <div className={classes["date"]}>{props.time}</div>
+          <Col className='pl-3'>
+            <div className={classes['date']}>{props.time}</div>
           </Col>
         </Row>
 
         {props.memo && (
           <Row>
-            <Col style={{ textAlign: "right", paddingRight: "25px" }}>
-              <div className={classes["memo"]}>{props.memo}</div>
+            <Col className='pr-4'>
+              <div className={classes['memo']}>{props.memo}</div>
             </Col>
           </Row>
         )}
 
         {includeImages && props.images && (
-          <div style={{ textAlign: "right", marginRight: "10px" }}>
-            <EvImages
-              images={props.images}
-              orgID={props.defaultOrgID}
-              isEdit={false}
-              isOpenedPatient={false}
-            />{" "}
+          <div className='pr-1'>
+            <EvImages images={props.images} orgID={props.defaultOrgID} isEdit={false} isOpenedPatient={false} />
           </div>
         )}
       </div>

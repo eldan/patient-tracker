@@ -1,24 +1,24 @@
-import React from "react";
-import Jumbotron from "react-bootstrap/Jumbotron";
-import Button from "react-bootstrap/Button";
+import React from 'react';
+import Jumbotron from 'react-bootstrap/Jumbotron';
+import Button from 'react-bootstrap/Button';
+import packageJson from './../package.json';
+import conf from './conf.json';
 
- function openPage (){
-    const url = 'http://eldanet.com';
-    window.open(url, '_blank');
+function openPage() {
+  window.open(conf.CONTACT_HTTP_URL, '_blank');
 }
 const About = () => (
   <Jumbotron>
-    <br/>
-    <br/>
-    <h1>Patient Tracker v 2.0</h1>
+    <h1 className='pt-5'>Patient Tracker v {packageJson.version}</h1>
+
     <p>
-      Build by <b>Eldanet.com</b>
+      Build by <b>{conf.CONTACT_COMPANY}</b>
       <br />
-      If you have any questions/bugs please send an email to: info@eldanet.com
+      If you have any questions, request or bugs, please contact: <b>{conf.CONTACT_EMAIL}</b>
     </p>
     <p>
-      <Button variant="primary" onClick={openPage}>
-        Learn more
+      <Button variant='primary' onClick={openPage}>
+        Eldanet.com
       </Button>
     </p>
   </Jumbotron>

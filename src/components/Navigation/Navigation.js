@@ -44,37 +44,16 @@ const Navigation = (props) => {
     return a;
   };
 
-  // const AdminList = () => {
-  //   var a = Object.keys(getUserOrgs).map(function (key) {
-  //     if (getUserOrgs[key].admin) {
-  //       var pathURL = "/manageusers/";
-  //       return (
-  //         <Nav.Link key={key} as={Link} eventKey="0" to={pathURL}>
-  //           Admin
-  //         </Nav.Link>
-  //       );
-  //     } else {
-  //       return null;
-  //     }
-  //   });
-  //   var b = null;
-  //   /* TODO FIX THIS UGLY CODE */
-  //   if (a.join(" ") !== "") {
-  //     b = [<NavDropdown.Divider key="devider" />, a];
-  //   }
-  //   return b;
-  // };
-
+  // Validate in FireBase
   function isAdmin(){
     if (getUserOrgs[getDefaultOrgID].admin !== undefined) return true;
     return false;
   }
 
   const RenderNav = () => {
-    
     return (
       <>
-        <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark">
+        <Navbar collapseOnSelect expand="lg" bg="dark" variant="dark" style={{top:'0px'}}>
           <Navbar.Brand href="#home">
             <span>Patient Tracker</span>
           </Navbar.Brand>
@@ -89,9 +68,7 @@ const Navigation = (props) => {
               </Nav.Link>
             </Nav>
             <Nav>
-              {/* <AdminList /> */}
               <NavDropdown.Divider />
-
               <span
                 className={classes["selectOrgs"]}
                 style={{
@@ -117,7 +94,7 @@ const Navigation = (props) => {
                 </Dropdown>
               </span>
 
-              {isAdmin ? ( //TODO so far u r admin of all orgs also set in DB like this, not good
+              {isAdmin ? ( //TODO Refactor FireBase to prevent admin has all orgs in DB
                 <>
                   <NavDropdown.Divider />
                   <Nav.Link as={Link} eventKey="0" to="/manageusers">

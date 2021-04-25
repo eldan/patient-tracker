@@ -2,7 +2,7 @@ import React, { useState, useEffect } from "react";
 import { Container, Button, Image } from "react-bootstrap";
 import imagePlaceHolder from "./../.././../../../images/imagePlaceHolder.gif";
 import classes from "./EvImages.module.css";
-import firebase from "./../../../../../Comm/firebase";
+import firebase from './../../../../../services/firebase';
 
 const EvImages = (props) => {
   const storageRef = firebase.storage().ref();
@@ -12,8 +12,6 @@ const EvImages = (props) => {
   const [isModeEdit] = useState(props.isEdit);
 
   useEffect(() => {
-    //console.log("EvImages > useEffect > Show 1st Time? ");
-    // return () => {
 
     if (!isModeEdit) {
       const setImageUrl = (image) => {
@@ -22,7 +20,6 @@ const EvImages = (props) => {
             .child(`${image}`)
             .getDownloadURL()
             .then((url) => {
-              // console.log("EvImages > useEffect > Show 3rd Time? ");
               // GET BACK url
               resolve(url);
             });
@@ -41,10 +38,7 @@ const EvImages = (props) => {
         });
       }
     }
-    // };
-    return () => {
-      // console.log("EvImages > useEffect > Show 2nd Time? ");
-    };
+
   }, [props.isPatientDetailedAlreadyOpened]);
 
   const removeImage = (uid) => {
@@ -78,6 +72,7 @@ const EvImages = (props) => {
   }
   const previewImageBeforeUpload = (event) => {
     if (event.target.files && event.target.files[0]) {
+      //TODO should get name from Firebase and not locally
       const fileName = Date.now() + Math.floor(Math.random() * 9999);
       setPreviewImages({ ...previewImages, [fileName]: event.target.files[0] });
       props.onImagesToBeUploadedChange({
@@ -111,7 +106,6 @@ const EvImages = (props) => {
   };
 
   const DrawEVImagesPlaceHolders = () => {
-    // console.log("DrawEVImagesPlaceHolders");
     return Object.keys(evImages).map((id) => (
       <img key={id} src={imagePlaceHolder} alt='' />
     ));

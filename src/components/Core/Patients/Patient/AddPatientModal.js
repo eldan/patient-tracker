@@ -1,12 +1,12 @@
 import React, { useState } from "react";
 import { Modal, Button, Form, Row, Col } from "react-bootstrap";
-import classes from "./../Patients.module.css";
 import DatePicker from "react-datetime";
 import moment from "moment";
 import "react-datetime/css/react-datetime.css";
 import EvImages from "./EvImages/EvImages";
 import WaitIcon from "./../../../../util/Wait/Wait";
-import firebase from "../../../../Comm/firebase";
+import firebase from '../../../../services/firebase';
+
 const storageRef = firebase.storage().ref();
 
 const AddPatient = (props) => {
@@ -20,7 +20,7 @@ const AddPatient = (props) => {
   const [dt, setDt] = useState(moment());
   const [memo, set_memo] = useState("");
   const [getImagesToBeUploaded, setImagesToBeUploaded] = useState({});
-  const [getErrors, setErrors] = useState({
+  const [getLocalErrors, setLocalErrors] = useState({
     isrl_id: "",
     set_name: "",
     set_age: "",
@@ -31,7 +31,7 @@ const AddPatient = (props) => {
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
-    let errors = getErrors;
+    let errors = getLocalErrors;
     switch (name) {
       case "set_idcard":
         set_isrl_id(value);
@@ -67,7 +67,7 @@ const AddPatient = (props) => {
       default:
         console.log("Throw an error");
     }
-    setErrors(errors);
+    setLocalErrors(errors);
   };
 
   const validateForm = (errors) => {
@@ -85,7 +85,7 @@ const AddPatient = (props) => {
     const postData = {
       isrl_id: isrl_id,
       name: name,
-      age: age + " " + month_year,
+      age: age + ' ' + month_year,
       medical_cause: medical_cause,
       event: {
         //this node will be romove and pushed in 2nd phase
@@ -96,7 +96,7 @@ const AddPatient = (props) => {
       },
     };
 
-    /* BEGIN COPY FROM SAME LOGIC AS IN AddEventModal */
+    /* TODO THIS IS COPIED FROM SAME LOGIC AS IN AddEventModal, Refactor */
 
     const imagesExists = Object.keys(getImagesToBeUploaded).length > 0;
     if (imagesExists) {
@@ -125,13 +125,12 @@ const AddPatient = (props) => {
     };
 
     function uploadImage(file, name) {
-      var uploadTask = storageRef.child(props.orgID + "/" + name).put(file);
+      var uploadTask = storageRef.child(props.orgID + '/' + name).put(file);
       uploadTask.on(
-        "state_changed",
+        'state_changed',
         function (snapshot) {
-          var progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log("Upload is " + progress + "% done");
+          var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
+          console.log('Upload is ' + progress + '% done');
         },
         function (error) {
           // Handle unsuccessful uploads
@@ -143,9 +142,6 @@ const AddPatient = (props) => {
         }
       );
     }
-
-    /* END COPY FROM SAME LOGIC AS IN AddEventModal */
-    //props.handleAddPatient(postData); originally was here but now in upper method
   };
 
   const handleImagesToBeUploadedChanged = (images) => {
@@ -176,7 +172,7 @@ const AddPatient = (props) => {
                     handleFormChange(e);
                   }}
                 />
-                {getErrors['isrl_id'].length > 0 && <div style={{ color: 'red' }}>{getErrors['isrl_id']}</div>}
+                {getLocalErrors['isrl_id'].length > 0 && <div className='alertMsg'>{getLocalErrors['isrl_id']}</div>}
               </Col>
             </Form.Group>
             <Form.Group as={Row} controlId='name'>
@@ -191,7 +187,7 @@ const AddPatient = (props) => {
                   name='set_name'
                   onChange={handleFormChange}
                 />
-                {getErrors['set_name'].length > 0 && <div style={{ color: 'red' }}>{getErrors['set_name']}</div>}
+                {getLocalErrors['set_name'].length > 0 && <div className='alertMsg'>{getLocalErrors['set_name']}</div>}
               </Col>
             </Form.Group>
             <Form.Group as={Row} controlId='age'>
@@ -210,7 +206,7 @@ const AddPatient = (props) => {
                     handleFormChange(e);
                   }}
                 />
-                {getErrors['set_age'].length > 0 && <div style={{ color: 'red' }}>{getErrors['set_age']}</div>}
+                {getLocalErrors['set_age'].length > 0 && <div className='alertMsg'>{getLocalErrors['set_age']}</div>}
               </Col>
               <Col sm='9' className='mt-2'>
                 <Form.Check
@@ -247,8 +243,8 @@ const AddPatient = (props) => {
                   value={set_medicalcause.value}
                   onChange={handleFormChange}
                 />
-                {getErrors['set_medicalcause'].length > 0 && (
-                  <div style={{ color: 'red' }}>{getErrors['set_medicalcause']}</div>
+                {getLocalErrors['set_medicalcause'].length > 0 && (
+                  <div className='alertMsg'>{getLocalErrors['set_medicalcause']}</div>
                 )}
               </Col>
             </Form.Group>
@@ -266,9 +262,7 @@ const AddPatient = (props) => {
                   name='set_location'
                   onChange={handleFormChange}
                 />
-                {getErrors['set_location'].length > 0 && (
-                  <div style={{ color: 'red' }}>{getErrors['set_location']}</div>
-                )}
+                {getLocalErrors['set_location'].length > 0 && <div className='alertMsg'>{getLocalErrors['set_location']}</div>}
               </Col>
             </Form.Group>
             <Form.Group as={Row} controlId='date'>
@@ -298,7 +292,7 @@ const AddPatient = (props) => {
                   name='set_memo'
                   onChange={handleFormChange}
                 />
-                {getErrors['set_memo'].length > 0 && <div style={{ color: 'red' }}>{getErrors['set_memo']}</div>}
+                {getLocalErrors['set_memo'].length > 0 && <div className='alertMsg'>{getLocalErrors['set_memo']}</div>}
               </Col>
             </Form.Group>
             <Form.Group as={Row} style={{ paddingRight: '0' }}>

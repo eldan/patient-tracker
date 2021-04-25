@@ -19,6 +19,8 @@ code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace;
 }
 
+/* General Bootstrap overide */
+
 .hebrew {
   direction: rtl;
   text-align: right;
@@ -42,10 +44,14 @@ code {
   margin-left: 0px !important;
 }
 
+.modal {
+  z-index: 1040 !important;
+}
+
 .modal-footer {
   flex-flow: row-reverse;
 }
 
-.modal {
-  z-index: 1040 !important;
+.alertMsg {
+  color: red;
 }

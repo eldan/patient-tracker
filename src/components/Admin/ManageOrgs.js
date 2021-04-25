@@ -1,10 +1,9 @@
 import React, { useEffect } from "react";
-
 import axios from "axios";
 
 const loadOrgs = () => {
   axios
-    .get(`https://patient-tracker-8a957.firebaseio.com/organisation.json`)
+    .get(`/organisation.json`)
     .then((res) => {
       if (res.data) {
         let objects = [];

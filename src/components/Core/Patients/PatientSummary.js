@@ -8,16 +8,16 @@ const PatientSummary = (props) => {
    return (
      <>
        <Row>
-         <Col xs={6}>
-           <div className={classes["patientAge"]}>{patient.age}</div>
+         <Col xs={4}>
+           <div className={classes['patientAge']}>{patient.age}</div>
          </Col>
-         <Col xs={6}>
-           <div className={classes["patientID"]}>...{patient.isrl_id}</div>
+         <Col xs={8}>
+           <div className={classes['patientID']}>...{patient.isrl_id}</div>
          </Col>
        </Row>
 
        {/* PATIENT NAME */}
-         <div className={classes["patientName"]}>{patient.name}</div>
+       <div className={classes['patientName']}>{patient.name}</div>
      </>
    );
 }

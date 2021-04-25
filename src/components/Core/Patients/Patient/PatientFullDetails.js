@@ -6,14 +6,13 @@ import classes from './../Patients.module.css';
 import classes_archive from './../PatientsArchive.module.css';
 import { Button, Modal, Alert } from 'react-bootstrap';
 import WaitIcon from './../../../../util/Wait/Wait';
-import Error from './../../../../Comm/Error'; // TODO not realy doing this - should put inside good infra
 
 const PatientFullDetails = (props) => {
+
   const patient = props.patient;
   const [loading] = useState(false); // missing setLoading
   const [getClassAnimation, setClass] = useState('modalSwipIn');
   const [alertBeforDelete, setAlertBeforDelete] = useState(false);
-  const [error, setError] = useState(null);
   const [showModalEvent, setModalEvent] = useState(false);
 
   function ClassSelectorForArchive(className) {
@@ -59,7 +58,7 @@ const PatientFullDetails = (props) => {
     <Alert className='hebrew' variant='danger' onClose={() => setAlertBeforDelete(false)} dismissible>
       <Alert.Heading>זוהי פעולה ללא אפשרות שיחזור</Alert.Heading>
       <p>אפשר למחוק את כל נתוני החולה מהמערכת?</p>
-      <div style={{ textAlign: 'left' }}>
+      <div className='text-left'>
         <Button variant='outline-danger' onClick={() => setAlertBeforDelete(false)}>
           בטל
         </Button>
@@ -73,7 +72,7 @@ const PatientFullDetails = (props) => {
   const DrawEventButtons = (patient) => {
     const rt =
       props.viewType !== 'archive' ? (
-        <div style={{ textAlign: 'right' }}>
+        <div className='text-right'>
           <Button variant='link' size='sm' style={{ float: 'left' }} onClick={() => setAlertBeforDelete(true)}>
             מחק חולה
           </Button>
@@ -109,9 +108,7 @@ const PatientFullDetails = (props) => {
           onHide={handleCloseModal}
           animation={false}
           contentClassName={classes[getClassAnimation]}
-          // className={classes["patientFullDetails"]}
         >
-          {/* <div className={classes["backdrop"]} onClick={handleCloseModal}></div> */}
           <Modal.Header style={{ padding: '5px 0px 0px 0px' }}>
             <DrawEventButtons />
             <Button variant='link' onClick={handleCloseModal}>
@@ -134,11 +131,11 @@ const PatientFullDetails = (props) => {
             patientID={props.focusPatientID}
             defaultOrgID={props.defaultOrgID}
             userName={props.userName}
+            handleSetError={(err) => props.handleSetError(err)}
           />
         </>
       )}
       {loading && <WaitIcon />}
-      {error && <Error setError={setError} errorMsg={error} />}
     </>
   );
 };

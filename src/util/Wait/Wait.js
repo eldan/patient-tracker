@@ -18,8 +18,6 @@ const Wait = (props) => {
         </div>
       </Modal>
     );
-
-    
 }
 
 export default Wait;

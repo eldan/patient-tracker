@@ -1,5 +1,5 @@
-import React, { useContext, useState, useEffect } from "react";
-import { auth, db } from "./../Comm/firebase";
+import React, { useContext, useState, useEffect } from 'react';
+import { auth, db } from './../services/firebase';
 
 const AuthContext = React.createContext();
 
@@ -50,22 +50,19 @@ export function AuthProvider({ children }) {
   const fGetUserDetails = (user) => {
     try {
       const usrEmail = user.email.toLowerCase();
-      var ref = db.ref("users");
+      var ref = db.ref('users');
       ref
-        .orderByChild("email")
+        .orderByChild('email')
         .equalTo(usrEmail)
-        .on("child_added", function (dataSnapshot) {
+        .on('child_added', function (dataSnapshot) {
           if (dataSnapshot.toJSON() != null) {
             const res = dataSnapshot.toJSON();
-            console.log("Logged in user email:");
-            /* SET THE TITLE + FULL NAME */
-            setUserFullName(
-              res.title + " " + res.privateName + " " + res.familyName
-            );
 
-            /* DOES THE USER HAS ORGS WHICH MEANS CAN GET INSIDE SYSTEM */
+            setUserFullName(res.title + ' ' + res.privateName + ' ' + res.familyName);
+
+            // Checks if user has an assigned org
             if (res.orgs !== undefined) {
-              /* SET DEFAULT ORGS */
+              // Set default org
               var defaultOrg;
               var tmpKey;
               Object.keys(res.orgs).map(function (key) {
@@ -77,15 +74,14 @@ export function AuthProvider({ children }) {
 
               if (defaultOrg === undefined) setDefaultOrgID(tmpKey);
               setUserOrgs(res.orgs);
-            } 
-
+            }
             setLoading(false);
           } else {
-            console.log("User corrupted!");
+           
+            // TODO setErrorName(18);
           }
         });
     } catch (e) {
-      console.log("error " + e);
       setLoading(false);
     }
   };
@@ -106,12 +102,11 @@ export function AuthProvider({ children }) {
     getUserOrgs,
     getDefaultOrgID,
     setNewDefaultOrgID,
-
   };
 
   return (
-    <AuthContext.Provider value={value}>
-      {!loading && children}
-    </AuthContext.Provider>
+    <>
+      <AuthContext.Provider value={value}>{!loading && children}</AuthContext.Provider>;
+    </>
   );
 }

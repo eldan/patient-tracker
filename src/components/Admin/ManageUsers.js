@@ -1,63 +1,24 @@
 import React, { useState, useEffect } from "react";
 import { Container, Button, Table, Modal, Form } from "react-bootstrap";
-// import { useLocation } from "react-router-dom";
-import { db } from "./../../Comm/firebase";
+import { db } from './../../services/firebase';
 import { useAuth } from "./../../contexts/AuthContext";
 
-const ManageUsers = () => {
+const ManageUsers = (props) => {
   const [getUsers, setUsers] = useState({});
   const [getFocusUser, setFocusUser] = useState(null);
-  // const [ setModal] = useState(false);
 
   useEffect(() => {
     loadUsers();
   }, []);
-
-  // useEffect(() => {
-  //   //Fetch data for user Property
-  //   console.log("Fetch data for user Property");
-  //   try {
-  //     var ref = db.ref("users/");
-  //     ref
-  //       .orderByChild("email")
-  //       .equalTo(getFocusUser)
-  //       .on("value", function (dataSnapshot) {
-  //         if (dataSnapshot.toJSON() != null) {
-  //           setFocusUserData(
-  //             dataSnapshot.toJSON()[Object.keys(dataSnapshot.toJSON())]
-  //           );
-  //         } else {
-  //           console.log("no users: no result");
-  //         }
-  //       });
-  //   } catch (e) {
-  //     console.log("error " + e);
-  //     // return <GetUser />;
-  //   }
-  // }, [getFocusUser]);
-
-  // const openModal = () => {
-  //   setModal(true);
-  // };
-
-  // const closeModal = () => {
-  //   setModal(false);
-  // };
+  
   const { getUserOrgs } = useAuth();
-  // const location = useLocation();
-
-  // //TODO change gthis ugly way of retrieve the ID
-  // const orgId = location.pathname.replace("/manageusers/", "");
-  // const orgName = getUserOrgs[orgId].name;
 
   const loadUsers = () => {
     try {
-      var ref = db.ref("users/"); //TODO not exactly yhe best cause admin gets all users includes not his own
+      var ref = db.ref("users/"); //TODO remove current admin user from list
       ref.on("value", function (dataSnapshot) {
         if (dataSnapshot.toJSON() !== null) {
           setUsers(dataSnapshot.toJSON());
-        } else {
-          // console.log("loadPatients: no result");
         }
       });
     } catch (e) {
@@ -82,7 +43,7 @@ const ManageUsers = () => {
       }
 
       return (
-        <tr>
+        <tr key={id}>
           <td>
             <div onClick={() => handleUserProperty(getUsers[id], id)}>
               <Button variant="link" href="#">{getUsers[id].email}</Button>
@@ -95,14 +56,6 @@ const ManageUsers = () => {
       );
     });
   };
-
-  // const GetOrgNameForAdmin = () => {
-  //   return (
-  //     <span>
-  //       <b>{orgName}</b>
-  //     </span>
-  //   );
-  // };
 
   function checkBoxClicked(ev, user, orgID) {
     if (ev.target.checked) {
@@ -131,7 +84,7 @@ const ManageUsers = () => {
           if (error) {
             // console.log("reff2: " + error);
           } else {
-            // console.log("user Assigned ok. ");
+            // user Assigned successfully
           }
         });
       });
@@ -150,9 +103,9 @@ const ManageUsers = () => {
 
         reff2.set(null, function (error) {
           if (error) {
-            // console.log("reff3: " + error);
+            props.handleSetError(19);
           } else {
-            // console.log("user UNassigned ok. ");
+            // user Un-assigned successfully
           }
         });
       });
@@ -160,8 +113,6 @@ const ManageUsers = () => {
 
   function isThisOrgAssignedToUser(orgIDToSearch, user) {
     var rslt = true;
-    // console.log(orgIDToSearch);
-    // console.log(Object.keys(user.orgs));
     if (user.orgs) {
       var filterData = Object.keys(user.orgs).filter((item) =>
         item.includes(orgIDToSearch)
@@ -187,15 +138,6 @@ const ManageUsers = () => {
 
   return (
     <Container>
-      {/* {showModal ? (
-        <NewUser
-          handleCloseModalNewPatient={closeModal}
-          orgId={orgId}
-          key={orgId}
-          orgName={orgName}
-        />
-      ) : null} */}
-
       {getFocusUser !== null ? (
         <Modal show={true}>
           <Modal.Header>
@@ -224,37 +166,27 @@ const ManageUsers = () => {
                 {Object.keys(getUserOrgs).map(function (key) {
                   return (
                     <Form.Check
-                      type="checkbox"
+                      type='checkbox'
                       key={getUserOrgs[key].name}
                       label={getUserOrgs[key].name}
-                      defaultChecked={isThisOrgAssignedToUser(
-                        key,
-                        getFocusUser
-                      )}
+                      defaultChecked={isThisOrgAssignedToUser(key, getFocusUser)}
                       disabled={isAdminOnOrg(key, getFocusUser)}
                       onClick={(ev) => checkBoxClicked(ev, getFocusUser, key)}
                     />
-                    //TODO getUserOrgs too much info, should be stripped in db
+                    //TODO getUserOrgs retrieve only needed data
                   );
                 })}
               </Form.Group>
             </Modal.Body>
           </Modal.Header>
           <Modal.Footer>
-            <Button variant="link" onClick={handleCloseModalUserDetail}>
+            <Button variant='link' onClick={handleCloseModalUserDetail}>
               סגור
             </Button>
           </Modal.Footer>
         </Modal>
       ) : null}
-      <br />
-      <br />
-      <br />
-      <h4>Manage users</h4>
-
-      {/* <Button variant="primary" onClick={() => openModal()}>
-        Add User
-      </Button> */}
+      <h4 className='pt-5'>Manage users</h4>
       <Table striped hover>
         <thead>
           <tr>
@@ -266,7 +198,6 @@ const ManageUsers = () => {
           <Users />
         </tbody>
       </Table>
-      {/* <UserDetails /> */}
     </Container>
   );
 };

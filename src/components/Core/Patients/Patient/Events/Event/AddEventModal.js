@@ -3,21 +3,22 @@ import { Form, Row, Col, Modal, Button } from "react-bootstrap";
 import DatePicker from "react-datetime";
 import "react-datetime/css/react-datetime.css";
 import moment from "moment";
-import firebase from "../../../../../../Comm/firebase";
+import firebase from '../../../../../../services/firebase';
 import EvImages from "../../EvImages/EvImages";
 import WaitIcon from "./../../../../../../util/Wait/Wait";
-import { be_addEvent } from "../../../../../../Comm/Service";
+import { be_addEvent } from '../../../../../../services/Service';
 
 const storageRef = firebase.storage().ref();
 const Compress = require("compress.js");
 
 const AddEventModal = (props) => {
+
   const [submit, setSubmit] = useState(false);
   const [dt, setDt] = useState(moment());
   const [location, set_location] = useState("");
   const [memo, set_memo] = useState("");
   const [getImagesToBeUploaded, setImagesToBeUploaded] = useState({});
-  const [getErrors, setErrors] = useState({
+  const [getLocalErrors, setLocalErrors] = useState({
     location: "",
     memo: "",
   });
@@ -26,7 +27,7 @@ const AddEventModal = (props) => {
 
   const handleFormChange = (e) => {
     const { name, value } = e.target;
-    let errors = getErrors;
+    let errors = getLocalErrors;
     switch (name) {
       case "set_location":
         set_location(value);
@@ -41,7 +42,7 @@ const AddEventModal = (props) => {
       default:
         console.log("Throw error");
     }
-    setErrors(errors);
+    setLocalErrors(errors);
   };
 
   const validateForm = (errors) => {
@@ -51,7 +52,7 @@ const AddEventModal = (props) => {
   };
 
   const submitEvent = (isRemove) => {
-    if (validateForm(getErrors)) {
+    if (validateForm(getLocalErrors)) {
       console.info("Valid Form");
       saveEvent(isRemove);
     } else {
@@ -62,7 +63,7 @@ const AddEventModal = (props) => {
   const saveEvent = (isRemove) => {
     setSubmit(true);
     /* Try to upload all images */
-    //TODO still need to create a process that checks it a real image and if somehting failes dont continue but revert
+    //TODO still need to create a process that checks it a real image and if somehting fails dont continue. Instead revert.
     const imagesExists = Object.keys(getImagesToBeUploaded).length > 0;
     if (imagesExists) {
       // Compress files
@@ -129,8 +130,7 @@ const AddEventModal = (props) => {
         },
 
         (err) => {
-          //Respond Error
-          // setError(err);
+           props.handleSetError(16);
         }
       );
     }
@@ -142,12 +142,10 @@ const AddEventModal = (props) => {
       uploadTask.on(
         "state_changed",
         function (snapshot) {
-          var progress =
-            (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
-          console.log("Upload is " + progress + "% done");
+          //Showing progress: var progress = (snapshot.bytesTransferred / snapshot.totalBytes) * 100;
         },
         function (error) {
-          // Handle unsuccessful uploads
+           props.handleSetError(17);
           return false;
         },
         function () {
@@ -165,7 +163,7 @@ const AddEventModal = (props) => {
   return (
     <>
       {submit === true ? <WaitIcon /> : null}
-      <Modal show={true} onHide={props.handleCloseEventModal} >
+      <Modal show={true} onHide={props.handleCloseEventModal}>
         <Modal.Header closeButton className={'modalHebrew'}>
           <Modal.Title>הוספת אירוע</Modal.Title>
         </Modal.Header>
@@ -183,7 +181,7 @@ const AddEventModal = (props) => {
                   name='set_location'
                   onChange={handleFormChange}
                 />
-                {getErrors['location'].length > 0 && <div style={{ color: 'red' }}>{getErrors['location']}</div>}
+                {getLocalErrors['location'].length > 0 && <div className='alertMsg'>{getLocalErrors['location']}</div>}
               </Col>
             </Form.Group>
 
@@ -216,7 +214,7 @@ const AddEventModal = (props) => {
                   name='set_memo'
                   onChange={handleFormChange}
                 />
-                {getErrors['memo'].length > 0 && <div style={{ color: 'red' }}>{getErrors['memo']}</div>}
+                {getLocalErrors['memo'].length > 0 && <div className='alertMsg'>{getLocalErrors['memo']}</div>}
               </Col>
             </Form.Group>
 
@@ -240,7 +238,6 @@ const AddEventModal = (props) => {
           <Button variant='link' onClick={props.handleCloseEventModal}>
             סגור
           </Button>
-
           <Button variant='primary' onClick={() => submitEvent(false)} disabled={submit}>
             הוספת אירוע
           </Button>
