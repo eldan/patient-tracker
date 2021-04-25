@@ -1,6 +1,9 @@
 Structure of file:
+
 .env.local
+
 Fill it with google firebase parameters
+
 ----------------------------------------
 
 REACT_APP_ROOT=
